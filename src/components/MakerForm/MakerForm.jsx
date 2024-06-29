@@ -9,6 +9,8 @@ const CropProtectionForm = () => {
 
     const db = getFirestore(app);
 
+    const [submitting, setSubmitting] = useState(false);
+
     const [formData, setFormData] = useState({
         date: '',
         crop: '',
@@ -145,6 +147,7 @@ const CropProtectionForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setSubmitting(true);
         console.log(formData);
         try {
             // Add data to Firestore
@@ -152,11 +155,10 @@ const CropProtectionForm = () => {
             const docRef = await addDoc(collection(db, 'markerform'), formData);
             console.log('Document written with ID: ', docRef.id);
             // Optionally, clear form data or show success message
-            alert('Form data submitted successfully!');
         } catch (error) {
             console.error('Error adding document: ', error);
-            alert('Failed to submit form data. Please try again later.');
         }
+        setSubmitting(false);
         // Handle form submission
     };
 
@@ -364,7 +366,12 @@ const CropProtectionForm = () => {
                 </div>
 
                 <div className="mt-4 text-center">
-                    <button type="submit" className="btn btn-primary btn-lg">Submit</button>
+                    <button type="submit" className="btn btn-primary btn-lg" disabled={submitting}>
+                        {submitting ? (
+                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        ) : null}
+                        {submitting ? 'Submitting...' : 'Submit'}
+                    </button>
                 </div>
             </form>
         </div>
