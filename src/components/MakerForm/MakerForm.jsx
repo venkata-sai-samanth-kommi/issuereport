@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
 import { subDays, addDays, format } from 'date-fns';
 
+import { initializeApp } from 'firebase/app';
+import { getFirestore, addDoc, collection } from 'firebase/firestore';
+import app from '../../firebaseapp';
+
 const CropProtectionForm = () => {
+
+    const db = getFirestore(app);
+
     const [formData, setFormData] = useState({
         date: '',
         crop: '',
@@ -136,9 +143,20 @@ const CropProtectionForm = () => {
 
     const typeOfSeedOptions = ['Seed Type 1', 'Seed Type 2'];
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         console.log(formData);
+        try {
+            // Add data to Firestore
+            // const docRef = await db.collection('markerform').add(formData);
+            const docRef = await addDoc(collection(db, 'markerform'), formData);
+            console.log('Document written with ID: ', docRef.id);
+            // Optionally, clear form data or show success message
+            alert('Form data submitted successfully!');
+        } catch (error) {
+            console.error('Error adding document: ', error);
+            alert('Failed to submit form data. Please try again later.');
+        }
         // Handle form submission
     };
 
