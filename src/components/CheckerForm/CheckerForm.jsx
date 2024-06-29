@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, getDoc, doc, addDoc, deleteDoc } from 'firebase/firestore';
 import app from '../../firebaseapp';
 
 const CheckerForm = () => {
     const [records, setRecords] = useState([]);
+    const [loading, setLoading] = useState(false); // State for loading spinner
     const db = getFirestore(app);
 
     useEffect(() => {
         const fetchRecords = async () => {
             try {
                 const querySnapshot = await getDocs(collection(db, 'markerform'));
-                const fetchedRecords = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const fetchedRecords = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), approved: false }));
                 setRecords(fetchedRecords);
             } catch (error) {
                 console.error('Error fetching records: ', error);
@@ -19,8 +20,41 @@ const CheckerForm = () => {
         fetchRecords();
     }, [db]);
 
-    const handleApprove = (recordId) => {
-        console.log('Record with ID ' + recordId + ' approved.');
+    const handleApprove = async (recordId, index) => {
+        try {
+            setLoading(true); // Start loading spinner
+
+            const recordRef = doc(db, 'markerform', recordId);
+            const docSnapshot = await getDoc(recordRef);
+
+            if (docSnapshot.exists()) {
+                const recordData = docSnapshot.data();
+
+                // Add the document to approvedRecords collection
+                const approvedRecordsRef = collection(db, 'exceldata');
+                await addDoc(approvedRecordsRef, {
+                    ...recordData,
+                    approved: true,
+                    approvalDate: new Date().toISOString()
+                });
+
+                // Delete the record from markerform collection
+                await deleteDoc(recordRef);
+
+                console.log('Record with ID ' + recordId + ' approved and moved to exceldata collection.');
+
+                // Update local state to remove the approved record
+                const updatedRecords = [...records];
+                updatedRecords.splice(index, 1);
+                setRecords(updatedRecords);
+
+                console.log('Record removed from UI after approval.');
+            }
+        } catch (error) {
+            console.error('Error approving record: ', error);
+        } finally {
+            setLoading(false); // Stop loading spinner
+        }
     };
 
     return (
@@ -102,9 +136,11 @@ const CheckerForm = () => {
 
                     <button
                         className="btn btn-success mt-3"
-                        onClick={() => handleApprove(record.id)}
+                        onClick={() => handleApprove(record.id, index)}
+                        disabled={record.approved || loading}
                     >
-                        Approve
+                        {loading && <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>}
+                        {record.approved ? 'Approved' : 'Approve'}
                     </button>
                 </div>
             ))}
