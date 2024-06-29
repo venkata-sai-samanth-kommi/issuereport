@@ -11,7 +11,7 @@ function App() {
       <div className="App">
         <Header />
         <Routes>
-          <Route path="/" element={<MakerForm />} />
+          <Route path="/reportissue" element={<MakerForm />} />
           <Route path="/maker-form" element={<MakerForm />} />
           <Route path="/checker-form" element={<CheckerForm />} />
         </Routes>
