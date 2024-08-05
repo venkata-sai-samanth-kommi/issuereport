@@ -11,6 +11,43 @@ const CropProtectionForm = () => {
 
     const [submitting, setSubmitting] = useState(false);
 
+    const initialFormData = {
+        date: '',
+        crop: '',
+        variety: '',
+        line: '',
+        typeOfSeed: '',
+        issuedLotNo: '',
+        packagedLotNo: '',
+        packagedLotNoBags: '',
+        packagedLotNoQty: '',
+        labelNoTo: '',
+        lableNoFrom: '',
+        reminentQty: '',
+        packagingLoss: '',
+        packedSize: '',
+        issuedLotNoBags: '',
+        issuedLotNoQty: '',
+        dateOfPacking: '',
+        dateOfTest: '',
+        dateOfExpiry: '',
+        lableNoFrom: '',
+        labelNoTo: '',
+        chemicalUsage: {
+            polymer: { type: '', usedQty: '' },
+            thiram: { type: '', usedQty: '' },
+            metalexal: { type: '', usedQty: '' },
+            deltamitrin: { type: '', usedQty: '' },
+            thimotoxin: { type: '', usedQty: '' },
+        },
+        packingMaterialUsage: {
+            pouch: { type: '', usedQty: '' },
+            hdpe: { type: '', usedQty: '' },
+            damaged: { type: '', usedQty: '' },
+            others: { type: '', usedQty: '' },
+        },
+    };
+
     const [formData, setFormData] = useState({
         date: '',
         crop: '',
@@ -155,6 +192,7 @@ const CropProtectionForm = () => {
             const docRef = await addDoc(collection(db, 'markerform'), formData);
             console.log('Document written with ID: ', docRef.id);
             // Optionally, clear form data or show success message
+            setFormData(initialFormData);
         } catch (error) {
             console.error('Error adding document: ', error);
         }
