@@ -1,24 +1,53 @@
-import React from 'react';
+// Header.jsx
+import React, { useState, useEffect } from 'react';
 import './Header.css';
 import { useNavigate } from 'react-router-dom';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
-import * as XLSX from 'xlsx'; // Import xlsx library
-import app from '../../firebaseapp'; // Ensure app is imported correctly from your firebaseapp setup
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import * as XLSX from 'xlsx';
+import app from '../../firebaseapp';
 import { saveAs } from 'file-saver';
 
 const Header = () => {
     const navigate = useNavigate();
-    const db = getFirestore(app); // Assuming `app` is your Firebase app instance
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+        });
+        return () => unsubscribe();
+    }, [auth]);
 
     const handleMakerClick = () => {
         navigate('/maker-form');
     };
 
     const handleCheckerClick = () => {
-        navigate('/checker-form');
+        if (user) {
+            navigate('/checker-form');
+        } else {
+            navigate('/login');
+        }
+    };
+
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            navigate('/');
+        } catch (error) {
+            console.error('Error signing out: ', error);
+        }
     };
 
     const handleGenerateExcel = async () => {
+        if (!user) {
+            alert('Please login to generate Excel.');
+            return;
+        }
+
         try {
             const querySnapshot = await getDocs(collection(db, 'exceldata'));
             const data = querySnapshot.docs.map(doc => doc.data());
@@ -51,9 +80,16 @@ const Header = () => {
                     <button className="btn btn-outline-success me-2" onClick={handleCheckerClick}>
                         Checker
                     </button>
-                    <button className="btn btn-outline-success" onClick={handleGenerateExcel}>
-                        Generate Excel
-                    </button>
+                    {user && (
+                        <>
+                            <button className="btn btn-outline-success me-2" onClick={handleGenerateExcel}>
+                                Generate Excel
+                            </button>
+                            <button className="btn btn-outline-danger" onClick={handleLogout}>
+                                Logout
+                            </button>
+                        </>
+                    )}
                 </div>
             </div>
         </nav>
