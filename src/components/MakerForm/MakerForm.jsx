@@ -16,7 +16,7 @@ const CropProtectionForm = () => {
         lableNoFrom: '',
         reminentQty: '',
         packagingLoss: '',
-        packedSize: '',
+        packedSize: '4',
         issuedLotNoBags: '',
         issuedLotNoQty: '',
         dateOfPacking: '',
@@ -122,19 +122,21 @@ const CropProtectionForm = () => {
         }));
     };
 
-    const cropOptions = ['Mustard', 'Maize'];
+    const cropOptions = ['Maize'];
 
     const getVarieties = (crop) => {
         if (crop === 'Mustard') {
             return ['Mustard Variety 1', 'Mustard Variety 2'];
         } else if (crop === 'Maize') {
-            return ['Maize Variety 1', 'Maize Variety 2'];
+            return ['RMH-9999', 'CMH-157', 'RMH-333', 'CMH-6453', 'RMH-1818', 'RMH-3456', 'Yamnotari 888', 'RMH-1899 Super', 'RMH-666 Star', 'RMH-9999 Power', 'RMH-567', 'RMH-117', 'RMH-3492'];
         } else {
             return [];
         }
     };
 
-    const typeOfSeedOptions = ['Seed Type 1', 'Seed Type 2'];
+    const typeOfSeedOptions = ['Raw-Fr', 'Raw-Co', 'Bulk-Fr', 'Bulk-Co', 'Bulk-Sr', 'Co&Sr', 'Fr&Sr'];
+
+    const lines = ['A', 'B', 'C', 'D', 'E', 'F'];
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -153,7 +155,12 @@ const CropProtectionForm = () => {
                     </div>
                     <div className="col-md-4">
                         <label htmlFor="line" className="form-label">Line:</label>
-                        <input type="text" className="form-control" id="line" name="line" value={formData.line} onChange={handleChange} />
+                        <select className="form-control" id="line" name="line" value={formData.line} onChange={handleChange}>
+                            <option value="">Select Type of Line</option>
+                            {lines.map((type, index) => (
+                                <option key={index} value={type}>{type}</option>
+                            ))}
+                        </select>
                     </div>
                 </div>
 
@@ -219,7 +226,7 @@ const CropProtectionForm = () => {
 
                 <div className="row mb-3">
                     <div className="col-md-4">
-                        <label htmlFor="issuedLotNo" className="form-label">Packed Size:</label>
+                        <label htmlFor="issuedLotNo" className="form-label">Pack Size:</label>
                         <input type="text" className="form-control" id="issuedLotNo" name="packedSize" value={formData.packedSize} onChange={handleChange} />
                     </div>
                     <div className="col-md-4">
